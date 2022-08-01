@@ -6,6 +6,7 @@ const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -16,31 +17,65 @@ const AuthForm = () => {
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
 
+    setIsLoading(true);
+    let url;
     if (isLogin) {
-      fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=############",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: enteredEmail,
-            password: enteredPassword,
-            returnSecureToken: true,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then((res) => {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCydgxy4xpHnBwBbmpPu1SIykpQ_di-DI1";
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          email: enteredEmail,
+          password: enteredPassword,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            return res.json().then((data) => {
+              let errorMessage = "Authentication failed!";
+              // if (data && data.error && data.error.message) {
+              //   errorMessage = data.error.message;
+              // }
+              throw new Error(errorMessage);
+            });
+          }
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => alert(err.message));
+    } else {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCydgxy4xpHnBwBbmpPu1SIykpQ_di-DI1";
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          email: enteredEmail,
+          password: enteredPassword,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => {
         if (res.ok) {
-          //...
+          setIsLoading(false);
         } else {
           res.json().then((data) => {
-            //show error modal
-            console.log(data);
+            let errorMessage = "Authentication failed!";
+            // if (data && data.error && data.error.message) {
+            //   errorMessage = data.error.message;
+            // }
+            alert(errorMessage);
           });
         }
       });
-    } else {
     }
   };
 
@@ -62,7 +97,11 @@ const AuthForm = () => {
           />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? "Login" : "Create Account"}</button>
+          {!isLoading ? (
+            <button>{isLogin ? "Login" : "Create Account"}</button>
+          ) : (
+            <p>Loading...</p>
+          )}
           <button
             type="button"
             className={classes.toggle}
