@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import AuthContext from "../../store/auth-context";
 
 import classes from "./AuthForm.module.css";
 
@@ -7,6 +8,8 @@ const AuthForm = () => {
   const passwordInputRef = useRef();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const authCtx = useContext(AuthContext);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -21,7 +24,7 @@ const AuthForm = () => {
     let url;
     if (isLogin) {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCydgxy4xpHnBwBbmpPu1SIykpQ_di-DI1";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=####";
       fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -47,12 +50,12 @@ const AuthForm = () => {
           }
         })
         .then((data) => {
-          console.log(data);
+          authCtx.login(data.idToken);
         })
         .catch((err) => alert(err.message));
     } else {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCydgxy4xpHnBwBbmpPu1SIykpQ_di-DI1";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=####";
       fetch(url, {
         method: "POST",
         body: JSON.stringify({
